@@ -1,0 +1,15 @@
+# Layout-advisor v1 defaults — override per project via intake or site profile.
+# Illustrative starting values, not measurements.
+
+min_layers_to_layer_pick: 3
+max_layers_hand_pick: 2
+source_slot_sqft: 60
+donor_slot_sqft: 48
+avg_layers_per_pallet: 6
+benchmark_seconds_per_layer: 45
+wave_horizon_hours: 4
+# Ops wave cadence (hours) — override per project when known (often ~2h). Not hardcoded in code.
+planning_horizon_hours: 24
+top_sku_buffer_slots: 2
+source_utilization: 0.85
+default_wave_pick_time: "06:00:00"

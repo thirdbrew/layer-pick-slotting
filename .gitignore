@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.DS_Store
+*.egg-info/
+build/
+dist/
+timeline.csv
+
+# Local, regenerable run output.
+data/plans/
+data/sim_runs/
+data/.carry_cache/
+
+# Your own site data (e.g. data/site/skus.csv). Never commit a real feed.
+data/site/

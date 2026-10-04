@@ -1,0 +1,8 @@
+{
+  "project_id": "fixture_site",
+  "area": {"length_ft": 60, "width_ft": 40, "height_ft": 24},
+  "allowed_line_types": ["clamp_layer_pick", "hybrid_manual_lp"],
+  "source_slot_range": {"min_count": 4, "max_count": 12},
+  "donor_slot_range": {"min_count": 2, "max_count": 6},
+  "footprint": {"source_slot_sqft": 60, "donor_slot_sqft": 48}
+}

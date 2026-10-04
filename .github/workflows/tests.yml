@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      - name: Test
+        run: pytest -q
+
+      # The seeded generator is the reason any figure in the README is checkable
+      # rather than a claim. If --seed 7 stops reproducing the committed site,
+      # every number quoted against it is silently stale.
+      - name: Synthetic site still reproduces from its seed
+        run: |
+          python tools/generate_synthetic_site.py --out /tmp/regen --seed 7
+          for f in pallets.csv slots.csv orders.csv exclusions.csv; do
+            diff -u "data/synthetic/$f" "/tmp/regen/$f"
+          done

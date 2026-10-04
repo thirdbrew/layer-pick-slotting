@@ -1,0 +1,10 @@
+order_id,item_id,qty_layers,due_at,status,area
+O101,ITEM-LOW-LAYERS,2,2026-06-12T12:00:00,visible,this_line
+O102,ITEM-EXCL,1,2026-06-12T10:00:00,waved,this_line
+O103,ITEM-HOLD,2,2026-06-12T10:00:00,waved,other_area
+O104,ITEM-HOLD,3,2026-06-12T14:00:00,waved,this_line
+O105,ITEM-ADD-WAVE,2,2026-06-12T11:00:00,waved,this_line
+O106,ITEM-WAIT,1,2026-06-12T11:30:00,waved,this_line
+O107,ITEM-ACTIVE-A,1,2026-06-12T16:00:00,visible,this_line
+O108,ITEM-ACTIVE-B,2,2026-06-12T18:00:00,visible,this_line
+O109,ITEM-BOUNDARY-OK,1,2026-06-12T15:00:00,visible,this_line

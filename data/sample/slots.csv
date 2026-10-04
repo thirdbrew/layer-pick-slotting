@@ -1,0 +1,15 @@
+slot_id,slot_type,occupied_by_pallet_id
+S01,source,P001
+S02,source,P002
+S03,source,P003
+S04,source,P004
+S05,source,P005
+S06,source,P006
+S07,source,
+S08,source,
+S09,source,
+S10,source,P011
+D01,destination,
+D02,destination,
+D03,destination,
+D04,destination,

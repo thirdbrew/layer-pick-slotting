@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "warehouse-slotting-engine"
+version = "0.1.0"
+description = "Rules-based decision support and simulation for warehouse layer-pick slotting"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "openpyxl>=3.1", "pytest-xdist>=3.5", "mypy>=1.18", "pytest-cov>=5.0"]
+# pytest-xdist is optional: the suite runs in seconds serially on generated
+# data. Deliberately NOT in addopts -- forcing it spawns a worker farm for a
+# single-test debug run and breaks --pdb. Pass it explicitly if you want it.
+charts = ["matplotlib>=3.8"]
+
+[project.scripts]
+slotting = "slotting.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+layout_advisor = ["config/*.yaml"]
+
+[tool.ruff.lint]
+# Pin the ruleset explicitly — ruff's DEFAULT select expands between releases
+# (0.16 added RUF/SIM/UP/DTZ/C4 etc.), which silently reddens CI on an unpinned
+# ruff. This is the classic E/F default the project was written against; adopt
+# newer rule families deliberately, not by linter upgrade.
+select = ["E4", "E7", "E9", "F", "B"]
+
+# B (flake8-bugbear) adopted deliberately, with three carve-outs.
+# Measured before adopting: B=54, SIM=10, DTZ=400, RUF=184, C4=63, ARG=48.
+#
+# DTZ was REJECTED despite looking like the obvious fit for a wave/due-time
+# scheduler. 393 of its 400 findings are DTZ001 (naive `datetime()`), and this
+# codebase is naive-by-design - one facility, one local clock, no cross-timezone
+# work anywhere. Adopting it would mean 400 semantic changes to frozen-KPI
+# scheduling code to fix a class of bug there is no evidence of. SIM/RUF/C4/ARG
+# are style, not defects; they buy churn.
+#
+# What B buys is prospective: ~25 rules that currently fire zero times, including
+# B006 (mutable default) and B023 (late-binding closure), both of which produce
+# plausible-but-wrong numbers rather than crashes. B023 had 2 real hits when
+# adopted, both fixed.
+ignore = [
+    # 40 sites, all in scripts/ and tests/. The one that mattered was in the
+    # order loader (demand_throughput.py) where a short column would silently
+    # truncate the order book; that one now passes strict=True by hand. The rest
+    # zip equal-length literals in throwaway code, and blanket-adding `strict=`
+    # to 40 call sites is churn that would bury the one real guard.
+    "B905",
+    # Cosmetic: an unused loop variable reads fine as `_` but renaming 7 of them
+    # touches loop bodies in frozen simulation code for no behavioural gain.
+    "B007",
+    # False positive here: the 4 hits are `cfg: ReplayConfig = ReplayConfig()`,
+    # and ReplayConfig is `@dataclass(frozen=True)` - an immutable singleton
+    # default is safe, which is precisely what B008 exists to distinguish from a
+    # shared mutable one.
+    "B008",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# scripts/ and tests/ bootstrap sys.path before importing the package, so
+# module-level imports legitimately follow that setup — E402 is intentional there.
+"scripts/**" = ["E402"]
+"tests/**" = ["E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# "." puts the repo root on sys.path so tests importing `scripts`/`tests`
+# packages resolve under bare `pytest` (CI), not just `python -m pytest` (which
+# adds CWD implicitly). Without it CI fails collection with ModuleNotFoundError.
+pythonpath = ["src", "."]
+
+[tool.mypy]
+# Scoped to the NUMERIC CORE only. `src/layout_advisor/layout` is rendering code - a type
+# error there moves a pixel; here it moves a published number.
+# Pre-existing errors are tolerated rather than fixed: they sit inside
+# frozen-KPI simulation code, and a refactor that shifts behaviour by accident
+# costs more than the type errors do (same call as the complexity ratchet).
+files = ["src/slotting", "src/layout_advisor/simulate"]
+ignore_missing_imports = true
